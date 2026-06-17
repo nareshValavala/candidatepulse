@@ -1,0 +1,15 @@
+{
+  "name": "candidatepulse-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "CandidatePulse analysis-engine prototype — paste a Q/A, get a real Claude-generated behavioral signal + follow-up.",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.69.0",
+    "better-sqlite3": "^12.10.0",
+    "express": "^5.2.1"
+  }
+}

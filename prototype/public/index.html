@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CandidatePulse — Sessions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy900:#0A1526; --navy800:#0F1F3D; --amber:#F59E0B; --amberDeep:#D9870A; --amberSoft:#FEF3DC; --amberLine:#F6D58C;
+    --ink:#0F1F3D; --ink2:#334155; --slate:#64748B; --slate3:#94A3B8; --slate1:#E2E8F0;
+    --paper:#fff; --wash:#F4F6F9; --wash2:#EBEEF3; --line:#E4E8EE;
+    --normal:#1C9A77; --normalBg:#E6F4EF; --mild:#BE921F; --mildBg:#F8F1DA;
+    --elevated:#DD7B22; --elevatedBg:#FBEAD8; --strong:#BF4631; --strongBg:#F8E3DE;
+    --font:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--wash); font-family:var(--font); color:var(--ink); -webkit-font-smoothing:antialiased}
+  .mono{font-family:var(--mono)}
+  .uplabel{font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--slate3)}
+  header{background:var(--navy800); color:#fff; padding:15px 28px; display:flex; align-items:center; gap:12px}
+  .mark{display:flex; gap:3px; align-items:flex-end; height:22px}
+  .mark i{width:4px; border-radius:2px; background:#3A567F; display:block}
+  .mark i:nth-child(1){height:9px} .mark i:nth-child(2){height:14px} .mark i:nth-child(3){height:18px} .mark i:nth-child(4){height:22px; background:var(--amber)}
+  header h1{font-size:17px; font-weight:600; letter-spacing:-.02em; margin:0}
+  header h1 span{font-weight:400}
+  .tmp{margin-left:10px; font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:#F6D58C; border:1px solid rgba(246,213,140,.4); padding:3px 7px; border-radius:5px}
+  .wrap{max-width:980px; margin:0 auto; padding:28px 28px 60px}
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:22px; box-shadow:0 1px 2px rgba(15,31,61,.05)}
+  h2{font-size:15px; font-weight:600; margin:0 0 4px; letter-spacing:-.01em}
+  .sub{font-size:13px; color:var(--slate); margin:0 0 18px}
+  .formrow{display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:end}
+  @media(max-width:680px){.formrow{grid-template-columns:1fr}}
+  label .uplabel{display:block; margin-bottom:6px; color:var(--ink2); letter-spacing:.04em}
+  input{width:100%; padding:11px 13px; font-family:var(--font); font-size:14px; color:var(--ink); background:#fff; border:1px solid var(--slate1); border-radius:9px; outline:none}
+  input:focus{border-color:var(--navy800); box-shadow:0 0 0 3px rgba(15,31,61,.08)}
+  .btn{font-family:var(--font); font-weight:600; font-size:14px; padding:12px 20px; border-radius:9px; border:1px solid transparent; cursor:pointer; white-space:nowrap; transition:filter .15s}
+  .btn:hover{filter:brightness(1.05)} .btn:disabled{opacity:.5; cursor:not-allowed}
+  .btn.amber{background:var(--amber); color:var(--navy900)}
+  .btn.ghost{background:#fff; color:var(--ink2); border-color:var(--line)}
+  .btn.sm{padding:8px 14px; font-size:13px}
+  .sectitle{display:flex; align-items:baseline; justify-content:space-between; margin:32px 4px 12px}
+  .sectitle h3{font-size:13px; font-weight:600; margin:0}
+  .rows{display:flex; flex-direction:column; gap:10px}
+  .rowcard{display:flex; align-items:center; gap:14px; background:var(--paper); border:1px solid var(--line); border-radius:12px; padding:14px 16px; cursor:pointer; transition:transform .12s, box-shadow .12s}
+  .rowcard:hover{transform:translateY(-1px); box-shadow:0 10px 24px -14px rgba(15,31,61,.28)}
+  .av{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;font-size:14px;background:linear-gradient(140deg,#3b82a8,#2a5878)}
+  .who{flex:1; min-width:0}
+  .who .nm{font-weight:600; font-size:14px}
+  .who .meta{font-size:12px; color:var(--slate); margin-top:1px}
+  .pill{font-family:var(--mono); font-size:10px; letter-spacing:.06em; text-transform:uppercase; padding:4px 9px; border-radius:99px; font-weight:600}
+  .pill.live{background:var(--strongBg); color:var(--strong); display:inline-flex; align-items:center; gap:6px}
+  .pill.live .d{width:6px;height:6px;border-radius:50%;background:var(--strong);animation:pulse 1.6s ease-out infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(191,70,49,.5)}100%{box-shadow:0 0 0 6px rgba(191,70,49,0)}}
+  .pill.complete{background:var(--wash2); color:var(--slate)}
+  .badge{display:inline-flex; align-items:center; gap:6px; padding:5px 10px; border-radius:99px; font-weight:600; font-size:12px}
+  .badge .bd{width:7px;height:7px;border-radius:50%}
+  .chev{color:var(--slate3)}
+  .empty{color:var(--slate3); font-size:13px; padding:18px; text-align:center; border:1px dashed var(--line); border-radius:12px}
+  .err{background:var(--strongBg); border:1px solid #EBB6A9; color:var(--strong); border-radius:9px; padding:10px 13px; font-size:13px; margin-top:12px}
+</style>
+</head>
+<body>
+<header>
+  <div class="mark"><i></i><i></i><i></i><i></i></div>
+  <h1>Candidate<span>Pulse</span></h1>
+  <span class="tmp">working name</span>
+</header>
+
+<div class="wrap">
+  <div class="card">
+    <h2>New session</h2>
+    <p class="sub">Create a behavioral-signal session, then run it live. Each answer is scored against the candidate’s own baseline and saved to the report.</p>
+    <div class="formrow">
+      <label><span class="uplabel">Candidate name</span><input id="name" placeholder="e.g. Jordan Bell" /></label>
+      <label><span class="uplabel">Role</span><input id="role" placeholder="e.g. Senior Backend Engineer" /></label>
+      <button class="btn amber" id="create">Create &amp; start live →</button>
+    </div>
+    <div id="err"></div>
+  </div>
+
+  <div class="sectitle"><h3>Sessions</h3><span class="uplabel" id="count"></span></div>
+  <div class="rows" id="rows"><div class="empty">Loading…</div></div>
+</div>
+
+<script>
+const SIG = {
+  normal:{c:'var(--normal)',bg:'var(--normalBg)',label:'Normal'},
+  mild:{c:'var(--mild)',bg:'var(--mildBg)',label:'Mild Drift'},
+  elevated:{c:'var(--elevated)',bg:'var(--elevatedBg)',label:'Elevated'},
+  strong:{c:'var(--strong)',bg:'var(--strongBg)',label:'Strong'},
+};
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const initials = n => (n||'?').split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+const ago = ts => {
+  const d = Date.now()-ts, m=Math.floor(d/60000), h=Math.floor(m/60), day=Math.floor(h/24);
+  if (m<1) return 'just now'; if (m<60) return m+'m ago'; if (h<24) return h+'h ago'; if (day<7) return day+'d ago';
+  return new Date(ts).toLocaleDateString();
+};
+
+async function load(){
+  const rows = document.getElementById('rows');
+  try{
+    const list = await (await fetch('/api/sessions')).json();
+    document.getElementById('count').textContent = list.length ? `${list.length} total` : '';
+    if (!list.length){ rows.innerHTML = `<div class="empty">No sessions yet — create one above.</div>`; return; }
+    rows.innerHTML = list.map(s=>{
+      const sg = s.session ? SIG[s.session.signal] : null;
+      const dest = s.status==='live' ? `/live?s=${s.id}` : `/report?s=${s.id}`;
+      const statusPill = s.status==='live'
+        ? `<span class="pill live"><span class="d"></span>Live</span>`
+        : `<span class="pill complete">Complete</span>`;
+      const sigBadge = sg ? `<span class="badge" style="background:${sg.bg}; color:${sg.c}"><span class="bd" style="background:${sg.c}"></span>${sg.label} ${s.session.confidence.toFixed(2)}</span>` : `<span class="uplabel">—</span>`;
+      return `<div class="rowcard" onclick="location.href='${dest}'">
+        <div class="av">${esc(initials(s.candidateName))}</div>
+        <div class="who"><div class="nm">${esc(s.candidateName)}</div><div class="meta">${esc(s.role||'—')} · ${ago(s.createdAt)} · ${s.answerCount||0} answer${s.answerCount===1?'':'s'}</div></div>
+        ${statusPill}
+        ${sigBadge}
+        <span class="chev">›</span>
+      </div>`;
+    }).join('');
+  }catch(e){ rows.innerHTML = `<div class="empty">Could not load sessions.</div>`; }
+}
+
+document.getElementById('create').onclick = async () => {
+  const candidateName = document.getElementById('name').value.trim();
+  const role = document.getElementById('role').value.trim();
+  const err = document.getElementById('err');
+  err.innerHTML='';
+  if (!candidateName){ err.innerHTML = `<div class="err">Enter a candidate name.</div>`; return; }
+  const btn = document.getElementById('create'); btn.disabled=true; btn.textContent='Creating…';
+  try{
+    const res = await fetch('/api/sessions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({candidateName,role})});
+    const s = await res.json();
+    if (!res.ok) throw new Error(s.error||'failed');
+    location.href = `/live?s=${s.id}`;
+  }catch(e){ err.innerHTML = `<div class="err">${esc(e.message)}</div>`; btn.disabled=false; btn.textContent='Create & start live →'; }
+};
+
+document.getElementById('name').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('create').click(); });
+document.getElementById('role').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('create').click(); });
+load();
+</script>
+</body>
+</html>

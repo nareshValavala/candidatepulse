@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CandidatePulse — Behavioral Signal Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy900:#0A1526; --navy800:#0F1F3D; --amber:#F59E0B; --amberDeep:#D9870A; --amberSoft:#FEF3DC; --amberLine:#F6D58C;
+    --ink:#0F1F3D; --ink2:#334155; --slate:#64748B; --slate3:#94A3B8; --slate1:#E2E8F0;
+    --paper:#fff; --wash:#F4F6F9; --wash2:#EBEEF3; --line:#E4E8EE;
+    --normal:#1C9A77; --normalBg:#E6F4EF; --mild:#BE921F; --mildBg:#F8F1DA;
+    --elevated:#DD7B22; --elevatedBg:#FBEAD8; --strong:#BF4631; --strongBg:#F8E3DE;
+    --font:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--wash); font-family:var(--font); color:var(--ink); -webkit-font-smoothing:antialiased}
+  .mono{font-family:var(--mono)}
+  .uplabel{font-family:var(--mono); font-size:10px; letter-spacing:.15em; text-transform:uppercase; color:var(--slate3)}
+  header{background:var(--navy800); color:#fff; padding:15px 28px; display:flex; align-items:center; gap:12px}
+  .mark{display:flex; gap:3px; align-items:flex-end; height:22px}
+  .mark i{width:4px; border-radius:2px; background:#3A567F; display:block}
+  .mark i:nth-child(1){height:9px} .mark i:nth-child(2){height:14px} .mark i:nth-child(3){height:18px} .mark i:nth-child(4){height:22px; background:var(--amber)}
+  header h1{font-size:16px; font-weight:600; letter-spacing:-.02em; margin:0} header h1 span{font-weight:400}
+  header .right{margin-left:auto; display:flex; gap:10px}
+  .btn{font-family:var(--font); font-weight:600; font-size:13px; padding:8px 14px; border-radius:8px; border:1px solid transparent; cursor:pointer; text-decoration:none}
+  .btn.ghostDark{background:rgba(255,255,255,.08); color:#fff; border-color:rgba(255,255,255,.16)}
+  .btn.amber{background:var(--amber); color:var(--navy900)}
+  .wrap{max-width:880px; margin:0 auto; padding:26px 28px 70px}
+  .card{background:var(--paper); border:1px solid var(--line); border-radius:14px; padding:22px; box-shadow:0 1px 2px rgba(15,31,61,.05); margin-bottom:16px}
+  .who h2{font-size:22px; font-weight:600; letter-spacing:-.02em; margin:0}
+  .who .meta{font-size:13px; color:var(--slate); margin-top:4px}
+  .disclaimer{background:var(--amberSoft); border:1px solid var(--amberLine); border-radius:12px; padding:13px 16px; font-size:12.5px; color:#7a5a12; line-height:1.5; margin-bottom:16px}
+  .disclaimer b{color:#5e4610}
+  .exec{display:flex; gap:22px; align-items:center}
+  .ring{position:relative; width:130px; height:130px; flex:0 0 auto}
+  .ring .v{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
+  .ring .num{font-family:var(--mono); font-size:30px; font-weight:600; letter-spacing:-.02em}
+  .ring .lab{font-family:var(--mono); font-size:8px; letter-spacing:.16em; color:var(--slate3); margin-top:4px}
+  .execbody{flex:1}
+  .badge{display:inline-flex; align-items:center; gap:7px; padding:5px 12px; border-radius:99px; font-weight:600; font-size:13px}
+  .badge .bd{width:8px;height:8px;border-radius:50%}
+  .baseline{font-size:13.5px; color:var(--ink2); line-height:1.55; margin-top:12px}
+  .note{font-size:13px; color:var(--slate); line-height:1.55; margin-top:8px}
+  h3.sec{font-size:13px; font-weight:600; margin:0 0 14px; letter-spacing:-.01em}
+  .timeline{display:flex; gap:8px}
+  .tile{flex:1; text-align:center; border:1px solid var(--line); border-radius:10px; padding:10px 6px; cursor:pointer}
+  .tile .q{font-family:var(--mono); font-size:10px; color:var(--slate3)}
+  .tile .dot{width:12px;height:12px;border-radius:50%;margin:7px auto 6px}
+  .tile .g{font-size:10.5px; font-weight:600}
+  .ev{border-top:1px solid var(--line); padding:16px 0}
+  .ev:first-child{border-top:none; padding-top:0}
+  .ev .q{font-size:14px; font-weight:600}
+  .ev .qrow{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px}
+  .excerpt{font-size:13px; color:var(--ink2); line-height:1.55; padding:10px 14px; border-radius:8px; background:var(--wash); border-left:3px solid var(--line)}
+  .drv{display:grid; grid-template-columns:150px 1fr 40px; align-items:center; gap:10px; margin-top:8px}
+  .drv .nm{font-size:11.5px; color:var(--slate)}
+  .track{height:6px; border-radius:99px; background:var(--wash2); overflow:hidden}
+  .track i{display:block; height:100%; border-radius:99px}
+  .drv .vv{font-family:var(--mono); font-size:10.5px; color:var(--slate); text-align:right}
+  .pat{display:flex; gap:9px; align-items:flex-start; margin-top:9px}
+  .pat .pd{width:7px;height:7px;border-radius:50%;margin-top:5px;flex:0 0 auto}
+  .pat .pt{font-size:12.5px; font-weight:600}
+  .pat .pdesc{font-size:12px; color:var(--slate); margin-top:1px}
+  .fu{margin-top:12px; background:var(--amberSoft); border:1px solid var(--amberLine); border-radius:9px; padding:11px 14px}
+  .fu .fq{font-size:13.5px; font-weight:600; color:var(--navy800)}
+  .fu .fw{font-size:12px; color:var(--amberDeep); margin-top:5px}
+  .conf-row{font-size:12px; color:var(--slate); margin-top:10px}
+  .center{max-width:880px; margin:60px auto; text-align:center; color:var(--slate)}
+  a.back{color:var(--amber); text-decoration:none; font-weight:600}
+</style>
+</head>
+<body>
+<header>
+  <div class="mark"><i></i><i></i><i></i><i></i></div>
+  <h1>Candidate<span>Pulse</span> · Behavioral Signal Report</h1>
+  <div class="right"><a class="btn ghostDark" href="/">All sessions</a><a class="btn amber" href="#" onclick="window.print();return false">Export PDF</a></div>
+</header>
+<div id="root"><div class="center">Loading report…</div></div>
+
+<script>
+const SIG = {
+  normal:{c:'var(--normal)',bg:'var(--normalBg)',label:'Normal',glyph:'Normal'},
+  mild:{c:'var(--mild)',bg:'var(--mildBg)',label:'Mild Pattern Drift',glyph:'Mild Drift'},
+  elevated:{c:'var(--elevated)',bg:'var(--elevatedBg)',label:'Elevated AI-Like Structure',glyph:'Elevated'},
+  strong:{c:'var(--strong)',bg:'var(--strongBg)',label:'Strong Pattern Consistency',glyph:'Strong'},
+};
+const RAW = {normal:'#1C9A77',mild:'#BE921F',elevated:'#DD7B22',strong:'#BF4631'};
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct = v => Math.round(Math.max(0,Math.min(1,v))*100);
+const dur = (a,b) => { if(!a||!b) return '—'; const s=Math.round((b-a)/1000),m=Math.floor(s/60); return `${m}m ${s%60}s`; };
+
+function driversHTML(d){
+  if(!d) return '';
+  const rows = [['Structural fingerprint',d.structure],['Specificity deficit',1-d.specificity],['Low concreteness',1-d.concreteness],['Low naturalness',1-d.naturalness],['Cross-question drift',d.drift]];
+  return rows.map(([nm,v])=>{
+    const col = v>0.66?'var(--strong)':v>0.4?'var(--mild)':'var(--slate3)';
+    return `<div class="drv"><span class="nm">${nm}</span><div class="track"><i style="width:${pct(v)}%; background:${col}"></i></div><span class="vv">${v.toFixed(2)}</span></div>`;
+  }).join('');
+}
+
+function render(s){
+  if(!s){ document.getElementById('root').innerHTML = `<div class="center">Report not found. <a class="back" href="/">Back to sessions</a></div>`; return; }
+  const se = s.session;
+  const sg = se ? SIG[se.signal] : SIG.normal;
+  const ringColor = se ? RAW[se.signal] : '#94A3B8';
+  const conf = se ? se.confidence : 0;
+  const R=58, C=2*Math.PI*R;
+  const answers = s.answers||[];
+
+  const timeline = answers.length ? `<div class="timeline">${answers.map(a=>{
+    const g=SIG[a.signal]||SIG.normal;
+    return `<div class="tile"><div class="q">Q${a.qIndex+1}</div><div class="dot" style="background:${RAW[a.signal]||'#ccc'}"></div><div class="g" style="color:${g.c}">${g.glyph}</div></div>`;
+  }).join('')}</div>` : `<div class="uplabel">No answers recorded.</div>`;
+
+  const evidence = answers.map(a=>{
+    const g=SIG[a.signal]||SIG.normal;
+    return `<div class="ev">
+      <div class="qrow"><div class="q">Q${a.qIndex+1}. ${esc(a.question)}</div><span class="badge" style="background:${g.bg}; color:${g.c}"><span class="bd" style="background:${g.c}"></span>${g.glyph} ${a.confidence.toFixed(2)}</span></div>
+      <div class="excerpt" style="border-left-color:${RAW[a.signal]||'var(--line)'}">${esc(a.answer)}</div>
+      ${driversHTML(a.drivers)}
+      ${(a.patterns&&a.patterns.length)?a.patterns.map(p=>`<div class="pat"><span class="pd" style="background:${RAW[p.sev]||'#ccc'}"></span><div><div class="pt">${esc(p.t)}</div><div class="pdesc">${esc(p.d)}</div></div></div>`).join(''):''}
+      ${a.followup?`<div class="fu"><div class="fq">Suggested follow-up: “${esc(a.followup.q)}”</div><div class="fw">${esc(a.followup.why)}</div></div>`:''}
+      ${a.confound?`<div class="conf-row"><b style="color:var(--ink2); font-weight:600">Reality check:</b> ${esc(a.confound)}</div>`:''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('root').innerHTML = `<div class="wrap">
+    <div class="card"><div class="who">
+      <h2>${esc(s.candidateName)}</h2>
+      <div class="meta">${esc(s.role||'—')} · ${new Date(s.createdAt).toLocaleString()} · duration ${dur(s.createdAt, s.endedAt)} · ${answers.length} question${answers.length===1?'':'s'}</div>
+    </div></div>
+
+    <div class="disclaimer"><b>A signal, not a verdict.</b> Behavioral and linguistic signals only — not a hiring decision, and never a determination of cheating. Non-native speakers and well-prepared candidates can produce similar patterns; treat this as a prompt to ask sharper follow-ups, not as proof.</div>
+
+    <div class="card">
+      <h3 class="sec">Executive summary</h3>
+      <div class="exec">
+        <div class="ring">
+          <svg width="130" height="130" viewBox="0 0 130 130" style="transform:rotate(-90deg)">
+            <circle cx="65" cy="65" r="${R}" fill="none" stroke="#EBEEF3" stroke-width="9"/>
+            <circle cx="65" cy="65" r="${R}" fill="none" stroke="${ringColor}" stroke-width="9" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-conf)}"/>
+          </svg>
+          <div class="v"><div class="num" style="color:${ringColor}">${conf.toFixed(2)}</div><div class="lab">CONFIDENCE</div></div>
+        </div>
+        <div class="execbody">
+          <span class="badge" style="background:${sg.bg}; color:${sg.c}"><span class="bd" style="background:${sg.c}"></span>${sg.label}</span>
+          ${se?`<div class="baseline"><b style="font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--slate3); display:block; margin-bottom:5px">Baseline</b>${esc(se.baseline)}</div><div class="note">${esc(se.note)}</div>`:`<div class="note" style="margin-top:12px">No signal recorded for this session.</div>`}
+        </div>
+      </div>
+    </div>
+
+    <div class="card"><h3 class="sec">Signal timeline</h3>${timeline}</div>
+
+    <div class="card"><h3 class="sec">Evidence · per answer</h3>${evidence || '<div class="uplabel">No answers.</div>'}</div>
+  </div>`;
+}
+
+const id = new URLSearchParams(location.search).get('s');
+if(!id){ document.getElementById('root').innerHTML = `<div class="center">No session specified. <a class="back" href="/">Back to sessions</a></div>`; }
+else fetch('/api/sessions/'+encodeURIComponent(id)).then(r=>r.ok?r.json():null).then(render).catch(()=>render(null));
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CandidatePulse — Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: #F4F6F9; font-family: 'IBM Plex Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+  #root { min-height: 100vh; }
+  button { font-family: inherit; }
+  input { font-family: inherit; }
+  input:focus { border-color: #0F1F3D !important; box-shadow: 0 0 0 3px rgba(15,31,61,.08); }
+  ::-webkit-scrollbar { width: 9px; height: 9px; }
+  ::-webkit-scrollbar-thumb { background: rgba(100,116,139,.32); border-radius: 99px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  .rs-row:hover { background: #F8FAFC !important; }
+  .rs-card-hover { transition: transform .15s ease, box-shadow .15s ease; }
+  .rs-card-hover:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -14px rgba(15,31,61,.25); }
+  @keyframes rsPulse { 0% { transform: scale(1); opacity: .4; } 100% { transform: scale(2.4); opacity: 0; } }
+  @keyframes rsRipple { 0% { transform: scale(.7); opacity: .5; } 100% { transform: scale(1.25); opacity: 0; } }
+  @keyframes rsRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes rsFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes rsBlink { 50% { opacity: 0; } }
+  @keyframes rsWave { 0%, 100% { transform: scaleY(.5); } 50% { transform: scaleY(1); } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</head>
+<body>
+<template id="__bundler_thumbnail">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100" height="100" fill="#0F1F3D"/>
+  <rect x="34" y="56" width="6" height="14" rx="2" fill="#3A567F"/>
+  <rect x="44" y="48" width="6" height="22" rx="2" fill="#3A567F"/>
+  <rect x="54" y="40" width="6" height="30" rx="2" fill="#3A567F"/>
+  <rect x="64" y="30" width="6" height="40" rx="2" fill="#F59E0B"/>
+</svg>
+</template>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="app/theme.jsx"></script>
+<script type="text/babel" src="app/data.jsx"></script>
+<script type="text/babel" src="app/signalviz.jsx"></script>
+<script type="text/babel" src="app/recruiter.jsx"></script>
+<script type="text/babel" src="app/candidate.jsx"></script>
+<script type="text/babel" src="app/dashboard.jsx"></script>
+<script type="text/babel" src="app/report.jsx"></script>
+<script type="text/babel" src="app/app.jsx"></script>
+</body>
+</html>

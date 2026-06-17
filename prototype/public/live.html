@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CandidatePulse — Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --navy900:#0A1526; --navy800:#0F1F3D; --navy700:#15294C; --navy600:#1E335C;
+    --amber:#F59E0B; --amberDeep:#D9870A;
+    --onDark:#E8EDF5; --onDarkDim:#9FB0C9; --onDarkFaint:#5C7295;
+    --normal:#1C9A77; --mild:#BE921F; --elevated:#DD7B22; --strong:#BF4631;
+    --font:'IBM Plex Sans',system-ui,sans-serif; --mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{
+    background:radial-gradient(130% 100% at 80% -10%, var(--navy700), var(--navy900) 60%);
+    color:#fff; font-family:var(--font); -webkit-font-smoothing:antialiased; min-height:100vh;
+  }
+  .mono{font-family:var(--mono)}
+  .uplabel{font-family:var(--mono); font-size:9.5px; letter-spacing:.15em; text-transform:uppercase; color:var(--onDarkDim)}
+  button{font-family:inherit}
+  /* header */
+  header{display:flex; align-items:center; justify-content:space-between; padding:14px 26px; border-bottom:1px solid rgba(255,255,255,.08); position:sticky; top:0; z-index:10; background:rgba(10,21,38,.72); backdrop-filter:blur(12px)}
+  .hl{display:flex; align-items:center; gap:18px}
+  .mark{display:flex; gap:3px; align-items:flex-end; height:20px}
+  .mark i{width:4px; border-radius:2px; background:#3A567F; display:block}
+  .mark i:nth-child(1){height:8px} .mark i:nth-child(2){height:12px} .mark i:nth-child(3){height:16px} .mark i:nth-child(4){height:20px; background:var(--amber)}
+  .logo{font-size:15px; font-weight:600; letter-spacing:-.02em}
+  .logo span{font-weight:400}
+  .vsep{width:1px; height:26px; background:rgba(255,255,255,.12)}
+  .chip{display:flex; align-items:center; gap:11px}
+  .av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:12px;color:#fff;background:linear-gradient(140deg,#3b82a8,#2a5878);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+  .cand{font-weight:600; font-size:13.5px}
+  .role{font-family:var(--mono); font-size:10px; color:var(--onDarkFaint)}
+  .live{display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:99px; background:rgba(28,154,119,.14); border:1px solid rgba(28,154,119,.5)}
+  .live .ld{width:7px;height:7px;border-radius:50%;background:var(--normal);position:relative}
+  .live .ld::after{content:'';position:absolute;inset:0;border-radius:50%;background:var(--normal);animation:pulse 2s ease-out infinite}
+  @keyframes pulse{0%{transform:scale(1);opacity:.5}100%{transform:scale(2.6);opacity:0}}
+  .live b{font-size:11.5px; letter-spacing:.04em; color:var(--normal)}
+  .live .clk{font-family:var(--mono); font-size:12px; color:#fff}
+  .btn{font-family:var(--font); font-weight:600; border-radius:8px; cursor:pointer; border:1px solid transparent; transition:filter .15s}
+  .btn:hover{filter:brightness(1.07)}
+  .btn:disabled{opacity:.4; cursor:not-allowed; filter:none}
+  .btn.amber{background:var(--amber); color:var(--navy900)}
+  .btn.ghost{background:rgba(255,255,255,.06); color:var(--onDark); border-color:rgba(255,255,255,.14)}
+  .btn.sm{padding:7px 13px; font-size:12.5px}
+  .btn.lg{padding:12px 20px; font-size:14px}
+  /* layout */
+  .wrap{display:grid; grid-template-columns:1fr 372px; gap:18px; padding:20px 26px 40px; max-width:1320px; margin:0 auto}
+  @media(max-width:980px){.wrap{grid-template-columns:1fr}}
+  .main{display:flex; flex-direction:column; gap:16px; min-width:0}
+  .rail{display:flex; flex-direction:column; gap:16px}
+  .card{padding:20px; border-radius:14px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08)}
+  .row{display:flex; align-items:center; justify-content:space-between}
+  /* question card */
+  .qtext{font-weight:500; font-size:19px; letter-spacing:-.015em; line-height:1.35; margin-top:10px}
+  .status{font-family:var(--mono); font-size:10.5px; color:var(--onDarkDim)}
+  .wave{display:inline-flex; align-items:center; gap:2px; height:14px}
+  .wave i{width:2.5px; border-radius:2px; background:var(--onDarkFaint); height:50%}
+  .wave.on i{background:var(--normal); animation:wv .9s ease-in-out infinite}
+  .wave i:nth-child(1){animation-delay:0s} .wave i:nth-child(2){animation-delay:.1s} .wave i:nth-child(3){animation-delay:.2s} .wave i:nth-child(4){animation-delay:.3s} .wave i:nth-child(5){animation-delay:.4s} .wave i:nth-child(6){animation-delay:.5s} .wave i:nth-child(7){animation-delay:.6s}
+  @keyframes wv{0%,100%{height:35%}50%{height:100%}}
+  .controls{display:flex; gap:10px; align-items:center; margin-top:16px; flex-wrap:wrap}
+  .hint{font-size:12px; color:var(--onDarkFaint); margin-top:12px; line-height:1.5}
+  .hint b{color:var(--onDarkDim); font-weight:500}
+  textarea{width:100%; margin-top:10px; font-family:var(--font); font-size:13.5px; line-height:1.5; color:#fff; background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.14); border-radius:9px; padding:10px 12px; resize:vertical; min-height:80px; outline:none}
+  textarea:focus{border-color:var(--amber)}
+  .qedit{width:100%; margin-top:10px; font-family:var(--font); font-weight:500; font-size:18px; letter-spacing:-.01em; color:#fff; background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.16); border-radius:9px; padding:10px 13px; outline:none}
+  .qedit:focus{border-color:var(--amber)}
+  /* orb */
+  .orbwrap{display:flex; flex-direction:column; align-items:center; gap:16px; padding:6px 0}
+  .orb{position:relative; width:190px; height:190px; display:flex; align-items:center; justify-content:center}
+  .halo{position:absolute; width:150px; height:150px; border-radius:50%; filter:blur(6px); transition:background .8s}
+  .orb svg{position:absolute; transform:rotate(-90deg)}
+  .core{width:112px;height:112px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:background .8s,box-shadow .8s}
+  .core .cv{font-family:var(--mono); font-size:30px; font-weight:500; letter-spacing:-.02em; line-height:1}
+  .core .cl{font-family:var(--mono); font-size:8px; color:rgba(255,255,255,.8); letter-spacing:.18em; margin-top:5px}
+  .slabel{font-weight:600; font-size:18px; letter-spacing:-.01em; text-align:center; transition:color .8s}
+  .ssub{font-size:12px; color:var(--onDarkDim); margin-top:4px; text-align:center}
+  /* drivers */
+  .drv{margin-top:8px}
+  .drv .r{display:flex; justify-content:space-between; margin-bottom:5px}
+  .drv .nm{font-size:12px; color:var(--onDark)}
+  .drv .v{font-family:var(--mono); font-size:11px}
+  .track{height:6px; border-radius:99px; background:rgba(255,255,255,.07); overflow:hidden; margin-bottom:11px}
+  .track i{display:block; height:100%; border-radius:99px; transition:width .9s cubic-bezier(.4,0,.2,1), background .6s}
+  /* patterns */
+  .pat{display:flex; gap:12px; align-items:flex-start; padding:11px 13px; border-radius:10px; background:rgba(255,255,255,.03); margin-bottom:9px}
+  .pat .pd2{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0}
+  .pat .pt{font-weight:600; font-size:13px}
+  .pat .pdesc{font-size:12px; color:var(--onDarkDim); margin-top:2px}
+  .pat .sev{font-family:var(--mono); font-size:9px; letter-spacing:.08em; text-transform:uppercase; padding:3px 7px; border-radius:5px; align-self:flex-start}
+  .muted{font-size:13px; color:var(--onDarkFaint); padding:4px 0}
+  /* followup */
+  .followup{padding:20px; border-radius:14px; background:linear-gradient(180deg,rgba(245,158,11,.12),rgba(245,158,11,.04)); border:1px solid rgba(245,158,11,.34); animation:rise .45s ease both}
+  .followup .fq{font-weight:600; font-size:17px; line-height:1.4; letter-spacing:-.01em; margin-top:10px}
+  .followup .fw{font-size:12.5px; color:var(--onDarkDim); margin-top:9px}
+  @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  /* session card */
+  .sescard{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03))}
+  .baseline{font-size:12.5px; color:var(--onDark); line-height:1.5; margin-top:10px}
+  .sesnote{font-size:12px; color:var(--onDarkDim); line-height:1.5; margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08)}
+  .badge{display:inline-flex; align-items:center; gap:7px; padding:5px 11px; border-radius:99px; font-weight:600; font-size:12.5px}
+  .badge .bd{width:8px;height:8px;border-radius:50%}
+  /* transcript */
+  .tbox{height:260px; overflow:auto; display:flex; flex-direction:column; gap:14px; padding-right:4px}
+  .tq{font-family:var(--mono); font-size:9.5px; color:var(--amber); letter-spacing:.04em; margin-bottom:5px}
+  .tqt{font-size:12px; color:var(--onDarkDim); font-style:italic; margin-bottom:8px}
+  .tn{font-family:var(--mono); font-size:9.5px; color:var(--onDarkFaint); letter-spacing:.04em; margin-bottom:5px}
+  .ta{font-size:13px; line-height:1.55}
+  .caret{border-right:2px solid var(--amber); margin-left:1px; animation:blink 1s step-end infinite}
+  @keyframes blink{50%{opacity:0}}
+  .interim{color:var(--onDarkDim)}
+  /* timeline */
+  .tl{display:flex; flex-direction:column; gap:2px}
+  .tlrow{display:flex; align-items:center; gap:11px; padding:7px 8px; border-radius:8px}
+  .tlrow .qn{font-family:var(--mono); font-size:10.5px; color:var(--onDarkFaint); width:18px}
+  .tlrow .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;background:rgba(255,255,255,.14)}
+  .tlrow .lab{font-size:12px; color:var(--onDarkFaint); flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .tlrow .cf{font-family:var(--mono); font-size:10px}
+  /* start overlay */
+  .overlay{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; background:radial-gradient(130% 100% at 80% -10%, var(--navy700), var(--navy900) 60%)}
+  .obox{max-width:440px; text-align:center; padding:0 24px}
+  .obox h1{font-size:26px; font-weight:600; letter-spacing:-.02em; margin:18px 0 10px}
+  .obox p{font-size:14px; color:var(--onDarkDim); line-height:1.6; margin:0 0 22px}
+  .obox .err{color:var(--elevated); font-size:12.5px; margin-top:14px}
+  .spin{display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,.35); border-top-color:#fff; border-radius:50%; animation:sp .7s linear infinite; vertical-align:-2px; margin-right:6px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .foot{grid-column:1/-1; text-align:center; font-size:11px; color:var(--onDarkFaint); line-height:1.5; padding-top:6px}
+</style>
+</head>
+<body>
+
+<!-- START OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="obox">
+    <div class="mark" style="justify-content:center; height:34px"><i style="height:14px"></i><i style="height:21px"></i><i style="height:28px"></i><i style="height:34px"></i></div>
+    <h1>Candidate<span style="font-weight:400">Pulse</span> — Live</h1>
+    <p>A live behavioral-signal session. Click below, allow the microphone, and conduct the interview question by question. Each answer is scored against the candidate's <b style="color:#fff">own baseline</b> — drift across the interview is the signal, not any single 30-second clip.</p>
+    <button class="btn amber lg" id="begin">Begin session</button>
+    <div class="err" id="overlayErr"></div>
+    <div class="hint" style="margin-top:18px">Best in Chrome or Edge. Live transcription uses the browser's Web&nbsp;Speech API (demo only — production uses Deepgram). The only API cost is the Claude analysis.</div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header style="display:none" id="hdr">
+  <div class="hl">
+    <div class="mark"><i></i><i></i><i></i><i></i></div>
+    <div class="logo">Candidate<span>Pulse</span></div>
+    <div class="vsep"></div>
+    <div class="chip"><div class="av">—</div><div><div class="cand">Candidate</div><div class="role">—</div></div></div>
+  </div>
+  <div style="display:flex; align-items:center; gap:12px">
+    <span class="live"><span class="ld"></span><b>LIVE</b><span class="clk" id="clk">00:00</span></span>
+    <button class="btn amber sm" id="endBtn">End &amp; view report</button>
+  </div>
+</header>
+
+<!-- BODY -->
+<div class="wrap" id="body" style="display:none">
+  <div class="main">
+    <div class="card" id="qcard"></div>
+    <div class="card" id="signalcard"></div>
+    <div class="card" id="patterns"></div>
+    <div id="followupSlot"></div>
+  </div>
+  <div class="rail">
+    <div class="card sescard" id="sessioncard"></div>
+    <div class="card" id="transcriptCard">
+      <div class="row" style="margin-bottom:12px"><span class="uplabel">Live transcript · Web Speech</span><span class="mono" id="sttConf" style="font-size:9.5px; color:var(--onDarkFaint)">● idle</span></div>
+      <div class="tbox" id="tbox"></div>
+    </div>
+    <div class="card" id="timelineCard">
+      <span class="uplabel" style="display:block; margin-bottom:14px">Signal timeline</span>
+      <div class="tl" id="tl"></div>
+    </div>
+  </div>
+  <div class="foot">CandidatePulse prototype · "a signal, not a verdict" · live capture (Web Speech) + Claude analysis · gaze &amp; Deepgram are production-only</div>
+</div>
+
+<script>
+const SIG = {
+  normal:   {c:'#1C9A77', label:'Normal',                     glyph:'Normal'},
+  mild:     {c:'#BE921F', label:'Mild Pattern Drift',         glyph:'Mild Drift'},
+  elevated: {c:'#DD7B22', label:'Elevated AI-Like Structure', glyph:'Elevated'},
+  strong:   {c:'#BF4631', label:'Strong Pattern Consistency', glyph:'Strong'},
+};
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const mmss = s => `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
+const initials = n => (n||'?').split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+
+// session bootstrap — this dashboard runs against a real session (?s=ID)
+const sid = new URLSearchParams(location.search).get('s');
+let SESSION=null, CAND='Candidate', ROLE='';
+const askedQ = [];                                   // the actual question asked per index (editable)
+const curQ = i => (askedQ[i] != null ? askedQ[i] : QUESTIONS[i].q);
+async function boot(){
+  if(!sid){ location.href='/'; return; }
+  let s; try{ s = await (await fetch('/api/sessions/'+encodeURIComponent(sid))).json(); }catch(e){ location.href='/'; return; }
+  if(!s || s.error){ location.href='/'; return; }
+  SESSION=s; CAND=s.candidateName||'Candidate'; ROLE=s.role||'';
+  document.querySelector('.chip .av').textContent = initials(CAND);
+  document.querySelector('.chip .cand').textContent = CAND;
+  document.querySelector('.chip .role').textContent = ROLE||'—';
+  (s.answers||[]).forEach(a=>{ results[a.qIndex]={signal:a.signal,confidence:a.confidence,drivers:a.drivers,patterns:a.patterns,followup:a.followup,rationale:a.rationale,confound:a.confound,session:s.session}; history[a.qIndex]={question:a.question,answer:a.answer}; askedQ[a.qIndex]=a.question; });
+  qi = Math.min((s.answers||[]).length, QUESTIONS.length-1);
+  phase = (results[qi] && !results[qi].error) ? 'resolved' : 'idle';
+}
+
+// The Jordan Bell interview (from the prototype's data.jsx). Sample answers let you
+// demo without speaking — but speaking is better, it captures real latency/pace.
+const QUESTIONS = [
+  { q:"To start — tell me about your current role and what you own day to day.",
+    sample:"Sure. So right now I'm at Lumen Freight, I've been there about three years on the platform team. Day to day I mostly own our dispatch service — it's the thing that matches loads to drivers. Honestly it's a bit of a mess, we inherited it from a contractor, so a lot of my week is just firefighting. Last Tuesday I was up until midnight because a Kafka consumer kept falling over. But yeah, dispatch is mine, plus I mentor two of the junior folks." },
+  { q:"Tell me about a project you’re proud of.",
+    sample:"A project I'm proud of. I'd say there are really three things that made it work. First, we improved reliability by moving to an event-driven architecture. Second, we reduced latency significantly through better caching. And third, we increased team velocity by improving our deployment pipeline. It was a really impactful project for the business and for the team overall." },
+  { q:"Tell me about a time you led a team through a difficult deadline.",
+    sample:"Leading a team through a difficult deadline requires three key things. First, clear communication — making sure everyone understands the goal and their role. Second, prioritization — focusing on what truly matters and cutting scope where needed. Finally, supporting the team — removing blockers and keeping morale high under pressure. By focusing on these areas, I was able to successfully guide the team to deliver on time." },
+  { q:"How do you handle disagreement with a manager?",
+    sample:"When I disagree with a manager, I focus on a few key principles. First, I listen carefully to understand their perspective fully. Second, I present my view backed by data rather than opinion. And finally, I stay aligned on the shared goal even if we differ on approach. This way disagreements stay constructive and productive for everyone involved." },
+  { q:"What’s a weakness you’re actively working on?",
+    sample:"Honestly? Saying no. I take on too much and then I'm the bottleneck. Last quarter I had like four things in flight and dropped a code review for two days, which held up a teammate — that stung. So now I'm trying to be more deliberate, I block my calendar and I've started actually declining stuff. It's a work in progress." },
+  { q:"Describe a technical decision you later regretted.",
+    sample:"A technical decision I regret involves three main lessons. First, I underestimated the long-term maintenance cost of the approach we chose. Second, I should have invested earlier in better testing and observability. And third, I learned the importance of aligning the team before committing to a direction. Ultimately it taught me to weigh trade-offs more carefully and communicate decisions more clearly going forward." },
+];
+
+// ---- state ----
+let qi = 0;
+let phase = 'idle';          // idle | listening | analyzing | resolved
+let history = [];            // resolved {question, answer}
+let results = [];            // resolved analysis objects (index = q)
+let recog = null, supported = false;
+let askStart = 0, firstWordAt = 0;
+let finalT = '', interimT = '';
+let clock = 0, clockTimer = null;
+
+// ---- speech recognition ----
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+supported = !!SR;
+function newRecog(){
+  if (!SR) return null;
+  const r = new SR();
+  r.continuous = true; r.interimResults = true; r.lang = 'en-US';
+  r.onresult = (e) => {
+    let fin = '', itm = '';
+    for (let i=e.resultIndex; i<e.results.length; i++){
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) fin += t; else itm += t;
+    }
+    if (fin) finalT += fin;
+    interimT = itm;
+    if (!firstWordAt && (finalT.trim() || interimT.trim())){ firstWordAt = Date.now(); }
+    document.getElementById('sttConf').innerHTML = '<span style="color:var(--normal)">● listening</span>';
+    renderTranscript(); renderQ();
+  };
+  r.onerror = (e) => { if (e.error === 'no-speech') return; };
+  r.onend = () => { if (phase==='listening') { try{ r.start(); }catch(_){} } }; // keep alive until "Done"
+  return r;
+}
+
+// ---- flow ----
+document.getElementById('begin').onclick = async () => {
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio:true }); // permission prompt
+  } catch (e) {
+    document.getElementById('overlayErr').textContent = 'Microphone permission is needed. You can still run the demo with the sample answers.';
+  }
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('hdr').style.display='flex';
+  document.getElementById('body').style.display='grid';
+  clockTimer = setInterval(()=>{ clock++; document.getElementById('clk').textContent = mmss(clock); }, 1000);
+  render();
+};
+
+function ask(){
+  const qe=document.getElementById('qedit'); if(qe) askedQ[qi]=qe.value.trim()||QUESTIONS[qi].q;
+  firstWordAt=0; finalT=''; interimT='';
+  phase='asking'; render();
+  speakQuestion(curQ(qi), startListening);   // read the question aloud, THEN listen
+}
+function startListening(){
+  if (phase==='analyzing' || phase==='resolved') return;
+  askStart=Date.now(); phase='listening';
+  if (supported){ recog = newRecog(); try{ recog.start(); }catch(_){} }
+  render();
+}
+function skipToAnswer(){ if (window.speechSynthesis) { try{ window.speechSynthesis.cancel(); }catch(_){} } startListening(); }
+function speakQuestion(text, after){
+  if (!window.speechSynthesis){ after(); return; }
+  try{
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 1.0; u.pitch = 1.0;
+    let done=false; const go=()=>{ if(!done){ done=true; after(); } };
+    u.onend = go; u.onerror = go;
+    window.speechSynthesis.speak(u);
+    setTimeout(go, Math.min(14000, 1500 + text.length*55)); // safety if onend never fires
+  }catch(_){ after(); }
+}
+function stopRecog(){ if (recog){ try{ recog.onend=null; recog.stop(); }catch(_){} recog=null; } }
+
+async function done(useSample){
+  let answer, signals=null;
+  if (useSample){
+    answer = QUESTIONS[qi].sample;
+  } else {
+    answer = (finalT + ' ' + interimT).trim();
+    const latencySec = firstWordAt ? (askStart? (firstWordAt-askStart)/1000 : null) : null;
+    const durSec = firstWordAt ? (Date.now()-firstWordAt)/1000 : 0;
+    const words = answer.split(/\s+/).filter(Boolean).length;
+    const wordsPerMin = durSec>2 ? words/(durSec/60) : null;
+    if (latencySec!=null || wordsPerMin!=null) signals = { latencySec, wordsPerMin };
+  }
+  const qe=document.getElementById('qedit'); if(qe && askedQ[qi]==null) askedQ[qi]=qe.value.trim()||QUESTIONS[qi].q;
+  stopRecog();
+  if (!answer || answer.split(/\s+/).filter(Boolean).length < 4){
+    phase='idle'; render(); alert('No answer captured yet — speak your answer, or use the sample.'); return;
+  }
+  const question = curQ(qi);
+  phase='analyzing';
+  finalT = answer; interimT=''; // freeze transcript to the captured answer
+  document.getElementById('sttConf').innerHTML = '<span style="color:var(--onDarkFaint)">● analyzing</span>';
+  render();
+  try {
+    const res = await fetch(`/api/sessions/${encodeURIComponent(sid)}/analyze`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ qIndex: qi, question, answer, signals })   // server owns the baseline/history
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error||'Analysis failed');
+    results[qi] = data;
+    history[qi] = { question, answer };
+    phase='resolved';
+    document.getElementById('sttConf').innerHTML = '<span style="color:var(--onDarkFaint)">● idle</span>';
+    render();
+  } catch (e){
+    phase='resolved';
+    results[qi] = { error: e.message };
+    render();
+    alert('Analysis error: ' + e.message);
+  }
+}
+
+function next(){
+  if (qi < QUESTIONS.length-1){ qi++; phase='idle'; finalT=''; interimT=''; render(); }
+  else { endReport(); }
+}
+
+document.getElementById('endBtn').onclick = endReport;
+
+// ---- render ----
+function render(){ renderQ(); renderSignal(); renderPatterns(); renderFollowup(); renderSession(); renderTranscript(); renderTimeline(); }
+
+function statusText(){
+  if (phase==='asking') return 'reading the question aloud…';
+  if (phase==='idle') return 'ready — click Ask question';
+  if (phase==='listening') return firstWordAt ? 'answering…' : 'waiting for first word…';
+  if (phase==='analyzing') return 'analyzing answer…';
+  if (phase==='resolved') {
+    const r=results[qi];
+    if (r && r.signals==null && r.__latency!=null){}
+    return 'answer complete';
+  }
+  return '';
+}
+
+function renderQ(){
+  const r = results[qi];
+  const latency = (phase!=='idle' && firstWordAt && askStart) ? ((firstWordAt-askStart)/1000).toFixed(1)+'s to first word' : null;
+  let controls = '';
+  if (phase==='idle')      controls = `<button class="btn amber sm" onclick="ask()">${supported?'Ask question (mic)':'Ask question'}</button><button class="btn ghost sm" onclick="done(true)">Use sample answer</button>`;
+  else if (phase==='asking') controls = `<span class="status">🔊 reading the question aloud…</span><button class="btn ghost sm" onclick="skipToAnswer()">Skip to answer</button>`;
+  else if (phase==='listening') controls = `<span class="wave on"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><button class="btn amber sm" onclick="done(false)">Done &amp; analyze</button><button class="btn ghost sm" onclick="done(true)">Use sample instead</button>`;
+  else if (phase==='analyzing') controls = `<span class="status"><span class="spin"></span>analyzing…</span>`;
+  else if (phase==='resolved') controls = `<button class="btn amber sm" onclick="next()">${qi<QUESTIONS.length-1?'Next question →':'End &amp; view report'}</button>`;
+
+  document.getElementById('qcard').innerHTML = `
+    <div class="row">
+      <span class="uplabel" style="color:var(--amber)">Question ${qi+1} of ${QUESTIONS.length} · Recruiter</span>
+      <span style="display:flex; align-items:center; gap:8px">
+        <span class="wave ${phase==='listening'&&firstWordAt?'on':''}"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="status">${latency || statusText()}</span>
+      </span>
+    </div>
+    ${phase==='idle'
+      ? `<input id="qedit" class="qedit" value="${esc(curQ(qi))}" />`
+      : `<div class="qtext">“${esc(curQ(qi))}”</div>`}
+    <div class="controls">${controls}</div>
+    ${phase==='idle' && !supported ? `<div class="hint"><b>This browser has no live speech recognition.</b> Use the sample answer, or type one:<textarea id="manual" placeholder="Type the candidate's answer…"></textarea><button class="btn ghost sm" style="margin-top:8px" onclick="finalT=document.getElementById('manual').value; done(false)">Analyze typed answer</button></div>` : ''}
+    ${phase==='idle' && supported ? `<div class="hint">Tip: read the sample answer aloud for a realistic demo (captures real time-to-first-word), or click <b>Use sample answer</b> to skip speaking.</div>` : ''}`;
+}
+
+function orbHTML(conf, state){
+  const s = SIG[state]||SIG.normal; const R=70, C=2*Math.PI*R;
+  return `<div class="orb">
+      <div class="halo" style="background:radial-gradient(circle, ${s.c}33, transparent 68%)"></div>
+      <svg width="190" height="190" viewBox="0 0 190 190">
+        <circle cx="95" cy="95" r="${R}" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="10"/>
+        <circle cx="95" cy="95" r="${R}" fill="none" stroke="${s.c}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-conf)}" style="transition:stroke-dashoffset 1s cubic-bezier(.4,0,.2,1), stroke .8s"/>
+      </svg>
+      <div class="core" style="background:radial-gradient(circle at 38% 32%, ${s.c}, ${s.c}cc); box-shadow:0 0 40px ${s.c}55, inset 0 2px 14px rgba(255,255,255,.25)">
+        <div class="cv">${conf.toFixed(2)}</div><div class="cl">CONFIDENCE</div>
+      </div>
+    </div>`;
+}
+
+function driversHTML(d, state){
+  const s = SIG[state]||SIG.normal;
+  const rows = [
+    ['Structural fingerprint', d.structure],
+    ['Specificity deficit', 1-d.specificity],
+    ['Low concreteness', 1-d.concreteness],
+    ['Low naturalness', 1-d.naturalness],
+    ['Cross-question drift', d.drift],
+  ];
+  return `<div class="drv">` + rows.map(([nm,v])=>{
+    const col = v>0.66 ? s.c : v>0.4 ? SIG.mild.c : 'var(--onDarkFaint)';
+    return `<div class="r"><span class="nm">${nm}</span><span class="v" style="color:${col}">${v.toFixed(2)}</span></div>
+      <div class="track"><i style="width:${Math.round(Math.max(0,Math.min(1,v))*100)}%; background:${col}"></i></div>`;
+  }).join('') + `</div>`;
+}
+
+function renderSignal(){
+  const el = document.getElementById('signalcard');
+  const r = results[qi];
+  if (phase==='resolved' && r && !r.error){
+    const s = SIG[r.signal]||SIG.normal;
+    el.innerHTML = `<div class="row" style="margin-bottom:14px"><span class="uplabel">Live signal · this answer</span></div>
+      <div class="orbwrap">${orbHTML(r.confidence, r.signal)}
+        <div><div class="slabel" style="color:${s.c}">${s.label}</div><div class="ssub">${esc(r.rationale||'')}</div></div>
+      </div>
+      ${driversHTML(r.drivers, r.signal)}`;
+  } else {
+    const txt = phase==='analyzing' ? 'Scoring this answer against the candidate’s baseline…' : phase==='listening' ? 'Listening — the signal resolves when you click Done.' : 'Ask the question to begin.';
+    el.innerHTML = `<div class="row" style="margin-bottom:14px"><span class="uplabel">Live signal · this answer</span></div>
+      <div class="orbwrap">${orbHTML(0, 'normal')}<div class="ssub" style="max-width:280px">${txt}</div></div>`;
+  }
+}
+
+function renderPatterns(){
+  const el = document.getElementById('patterns');
+  const r = results[qi];
+  let body;
+  if (phase==='resolved' && r && !r.error && r.patterns){
+    body = r.patterns.length ? r.patterns.map((p,i)=>{
+      const s = SIG[p.sev]||SIG.mild;
+      return `<div class="pat" style="border:1px solid ${s.c}33; animation:rise .4s ease ${i*0.08}s both">
+        <span class="pd2" style="background:${s.c}; box-shadow:0 0 8px ${s.c}"></span>
+        <div style="flex:1"><div class="pt">${esc(p.t)}</div><div class="pdesc">${esc(p.d)}</div></div>
+        <span class="sev" style="color:${s.c}; background:${s.c}1a">${esc(p.sev)}</span></div>`;
+    }).join('') : `<div class="muted">No significant patterns detected in this answer.</div>`;
+  } else {
+    body = `<div class="muted">${phase==='analyzing'?'Analyzing…':'—'}</div>`;
+  }
+  el.innerHTML = `<span class="uplabel" style="display:block; margin-bottom:14px">Detected patterns · this answer</span>${body}`;
+}
+
+function renderFollowup(){
+  const slot = document.getElementById('followupSlot');
+  const r = results[qi];
+  if (phase==='resolved' && r && !r.error && r.followup){
+    slot.innerHTML = `<div class="followup">
+      <div class="row"><span class="uplabel" style="color:var(--amber)">Suggested follow-up</span></div>
+      <div class="fq">“${esc(r.followup.q)}”</div>
+      <div class="fw">${esc(r.followup.why)}</div></div>`;
+  } else slot.innerHTML = '';
+}
+
+function renderSession(){
+  const el = document.getElementById('sessioncard');
+  // latest available session read
+  let r = null; for (let i=results.length-1; i>=0; i--){ if (results[i] && results[i].session){ r=results[i]; break; } }
+  if (!r){
+    el.innerHTML = `<span class="uplabel" style="display:block; margin-bottom:10px">Session read · whole interview</span>
+      <div class="ssub" style="text-align:left">No baseline yet. The first answers calibrate how this candidate naturally talks; later answers are judged against that — drift is the signal, not any single clip.</div>`;
+    return;
+  }
+  const se = r.session; const s = SIG[se.signal]||SIG.normal;
+  el.innerHTML = `<div class="row" style="margin-bottom:12px"><span class="uplabel">Session read · whole interview</span>
+      <span class="mono" style="font-size:16px; color:${s.c}">${se.confidence.toFixed(2)}</span></div>
+    <span class="badge" style="background:${s.c}1f; color:${s.c}"><span class="bd" style="background:${s.c}"></span>${s.label}</span>
+    <div class="baseline"><b style="color:var(--onDarkFaint); font-weight:500; font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; display:block; margin-bottom:5px">Baseline</b>${esc(se.baseline)}</div>
+    <div class="sesnote">${esc(se.note)}</div>`;
+}
+
+function renderTranscript(){
+  const box = document.getElementById('tbox');
+  let html = '';
+  for (let i=0; i<=qi; i++){
+    const isCur = i===qi;
+    const ans = isCur ? (phase==='listening' ? (finalT + (interimT?` <span class="interim">${esc(interimT)}</span>`:'') ) : (results[i]&&history[i]?esc(history[i].answer): (phase==='analyzing'? esc(finalT): ''))) : esc(history[i]?history[i].answer:'');
+    const showA = isCur ? (phase!=='idle') : true;
+    html += `<div>
+      <div class="tq">RECRUITER · Q${i+1}</div>
+      <div class="tqt">${esc(curQ(i))}</div>
+      ${showA ? `<div class="tn">${esc(CAND.toUpperCase())}</div><div class="ta">${isCur && phase==='listening' ? (finalT?esc(finalT):'') + (interimT?` <span class="interim">${esc(interimT)}</span>`:'') + '<span class="caret">&nbsp;</span>' : ans}</div>` : ''}
+    </div>`;
+  }
+  box.innerHTML = html;
+  box.scrollTop = box.scrollHeight;
+}
+
+function renderTimeline(){
+  const el = document.getElementById('tl');
+  el.innerHTML = QUESTIONS.map((Q,i)=>{
+    const r = results[i];
+    const resolved = r && !r.error && r.signal;
+    const isCur = i===qi;
+    const s = resolved ? SIG[r.signal] : null;
+    const lab = resolved ? s.glyph : (isCur ? (phase==='analyzing'?'Analyzing…':'Current') : 'Pending');
+    return `<div class="tlrow" style="background:${isCur?'rgba(255,255,255,.05)':'transparent'}">
+      <span class="qn">Q${i+1}</span>
+      <span class="dot" style="${resolved?`background:${s.c}; box-shadow:0 0 8px ${s.c}66`:''}"></span>
+      <span class="lab" style="${resolved?'color:#fff':''}">${lab}</span>
+      ${resolved?`<span class="cf" style="color:${s.c}">${r.confidence.toFixed(2)}</span>`:''}</div>`;
+  }).join('');
+}
+
+async function endReport(){
+  stopRecog();
+  if (clockTimer) clearInterval(clockTimer);
+  try{ await fetch(`/api/sessions/${encodeURIComponent(sid)}/end`, { method:'POST' }); }catch(_){}
+  location.href = `/report?s=${encodeURIComponent(sid)}`;
+}
+
+boot(); // load the session (candidate, resume state) on page load
+</script>
+</body>
+</html>
