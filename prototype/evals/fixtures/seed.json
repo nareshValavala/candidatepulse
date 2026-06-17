@@ -1,0 +1,95 @@
+[
+  {
+    "id": "drifter-q0",
+    "sessionId": "drifter",
+    "qIndex": 0,
+    "class": "genuine",
+    "expect": "low",
+    "question": "To start — tell me about your current role and what you own day to day.",
+    "answer": "Sure. So right now I'm at Lumen Freight, about three years on the platform team. I mostly own our dispatch service — the thing that matches loads to drivers. Honestly it's a bit of a mess, we inherited it from a contractor, so a lot of my week is firefighting. Last Tuesday I was up until midnight because a Kafka consumer kept falling over — turned out we were double-acking. But yeah, dispatch is mine, plus I mentor two of the juniors.",
+    "timing": { "latencySec": 1.5, "wordsPerMin": 142 }
+  },
+  {
+    "id": "drifter-q1",
+    "sessionId": "drifter",
+    "qIndex": 1,
+    "class": "genuine",
+    "expect": "low",
+    "question": "What's a weakness you're actively working on?",
+    "answer": "Honestly? Saying no. I take on too much and then I'm the bottleneck. Last quarter I had like four things in flight and dropped a code review for two days, which held up Priya — that stung. So now I block my calendar and I've actually started declining stuff. Work in progress.",
+    "timing": { "latencySec": 2.1, "wordsPerMin": 150 }
+  },
+  {
+    "id": "drifter-q2",
+    "sessionId": "drifter",
+    "qIndex": 2,
+    "class": "ai-verbatim",
+    "expect": "high",
+    "question": "Tell me about a time you led a team through a difficult deadline.",
+    "answer": "Leading a team through a difficult deadline requires three key things. First, clear communication — making sure everyone understands the goal and their role. Second, prioritization — focusing on what truly matters and cutting scope where needed. Finally, supporting the team — removing blockers and keeping morale high under pressure. By focusing on these areas, I was able to successfully guide the team to deliver on time.",
+    "timing": { "latencySec": 0.8, "wordsPerMin": 168 }
+  },
+  {
+    "id": "drifter-q3",
+    "sessionId": "drifter",
+    "qIndex": 3,
+    "class": "ai-verbatim",
+    "expect": "high",
+    "question": "Describe a technical decision you later regretted.",
+    "answer": "A technical decision I regret involves three main lessons. First, I underestimated the long-term maintenance cost of the approach we chose. Second, I should have invested earlier in better testing and observability. And third, I learned the importance of aligning the team before committing to a direction. Ultimately it taught me to weigh trade-offs more carefully and communicate decisions more clearly going forward.",
+    "timing": { "latencySec": 0.7, "wordsPerMin": 171 }
+  },
+
+  {
+    "id": "genuine-q0",
+    "sessionId": "consistent-genuine",
+    "qIndex": 0,
+    "class": "genuine",
+    "expect": "low",
+    "question": "To start — tell me about your current role and what you own day to day.",
+    "answer": "I'm a data engineer at Brightwell, coming up on two years. Day to day I own the ingestion side — we pull from like fifteen partner APIs and they're all flaky in different ways. My big thing lately has been a retry-and-backfill layer because one partner, Stripe actually, kept rate-limiting us at the worst times. I also do a lot of unglamorous on-call.",
+    "timing": { "latencySec": 1.8, "wordsPerMin": 138 }
+  },
+  {
+    "id": "genuine-q1",
+    "sessionId": "consistent-genuine",
+    "qIndex": 1,
+    "class": "genuine",
+    "expect": "low",
+    "question": "Tell me about a project you're proud of.",
+    "answer": "The backfill thing I mentioned. We were losing maybe 3% of events silently and nobody noticed for months until finance flagged a mismatch. I built a reconciliation job that diffs what we ingested against the partner's daily totals and replays the gaps. It's not glamorous but it caught a 40k discrepancy the first week. I'm proud mostly because I had to convince my manager it was worth the sprint.",
+    "timing": { "latencySec": 2.4, "wordsPerMin": 145 }
+  },
+  {
+    "id": "genuine-q2",
+    "sessionId": "consistent-genuine",
+    "qIndex": 2,
+    "class": "genuine",
+    "expect": "low",
+    "question": "Tell me about a time you disagreed with a teammate or manager.",
+    "answer": "My manager wanted to move everything to Airflow and I pushed back — for our scale it was overkill and the ops burden was real. It got a little tense honestly. What worked was I just ran our existing cron setup against a week of real load and showed the numbers. We ended up keeping cron for the simple stuff and Airflow only for the multi-step pipelines. He was right on half of it, turns out.",
+    "timing": { "latencySec": 1.3, "wordsPerMin": 152 }
+  },
+
+  {
+    "id": "star-human-q0",
+    "sessionId": "star-human",
+    "qIndex": 0,
+    "class": "star-human",
+    "expect": "low",
+    "question": "Tell me about a time you handled conflict on your team.",
+    "answer": "Sure. The situation was that two of our senior engineers disagreed about whether to migrate to gRPC. As tech lead the task fell to me to unblock us before the Q3 deadline. What I did was set up a one-hour spike where each prototyped their approach against the same benchmark, and we reviewed the numbers together rather than the opinions. The result was we went with gRPC, latency dropped about 30%, and the two of them ended up co-authoring the rollout doc. The lesson was that data resolves arguments authority can't.",
+    "timing": { "latencySec": 2.0, "wordsPerMin": 158 }
+  },
+
+  {
+    "id": "non-native-q0",
+    "sessionId": "non-native",
+    "qIndex": 0,
+    "class": "non-native",
+    "expect": "low",
+    "question": "Why do you want this role?",
+    "answer": "I want this role because it matches well with my experience and my goals. I have worked for five years in backend systems, and I think I can contribute to your team. Also, I want to grow my skills in distributed systems, which your company is strong in. I believe this position gives me a good opportunity to do meaningful work and to keep learning.",
+    "timing": { "latencySec": 3.2, "wordsPerMin": 116 }
+  }
+]

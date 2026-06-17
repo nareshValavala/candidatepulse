@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "CandidatePulse analysis-engine prototype — paste a Q/A, get a real Claude-generated behavioral signal + follow-up.",
+  "description": "CandidatePulse — real-time interview integrity-signal app (Express + SQLite + Claude). A signal, not a verdict.",
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "test": "node --test",
+    "eval": "node evals/run-evals.mjs",
+    "simulate": "node evals/simulate.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.69.0",

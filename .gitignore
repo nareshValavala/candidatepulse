@@ -11,6 +11,9 @@ node_modules/
 data/
 **/data/
 
+# --- generated eval fixtures (seed.json is committed; generated sets are reproducible) ---
+**/evals/fixtures/generated-*.json
+
 # --- docs / strategy (kept OUT of the repo) ---
 *.md
 **/*.md
