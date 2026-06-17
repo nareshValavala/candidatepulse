@@ -25,7 +25,9 @@ CREATE TABLE IF NOT EXISTS sessions (
   session_signal     TEXT,
   session_confidence REAL,
   baseline           TEXT,
-  note               TEXT
+  note               TEXT,
+  resume             TEXT,
+  generated_questions TEXT
 );
 CREATE TABLE IF NOT EXISTS answers (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,6 +50,11 @@ CREATE TABLE IF NOT EXISTS answers (
 CREATE INDEX IF NOT EXISTS idx_answers_session ON answers(session_id);
 `);
 
+// lightweight migrations for DBs created before these columns existed (ignore "duplicate column")
+for (const col of ["resume TEXT", "generated_questions TEXT"]) {
+  try { db.exec(`ALTER TABLE sessions ADD COLUMN ${col}`); } catch {}
+}
+
 // ---- mappers -------------------------------------------------------------
 function rowToSession(s) {
   return {
@@ -58,6 +65,8 @@ function rowToSession(s) {
     endedAt: s.ended_at,
     status: s.status,
     answerCount: s.answer_count ?? undefined,
+    resume: s.resume || null,
+    generatedQuestions: s.generated_questions ? JSON.parse(s.generated_questions) : [],
     session: s.session_signal
       ? { signal: s.session_signal, confidence: s.session_confidence, baseline: s.baseline, note: s.note }
       : null,
@@ -82,12 +91,16 @@ function rowToAnswer(a) {
 }
 
 // ---- queries -------------------------------------------------------------
-export function createSession({ candidateName, role }) {
+export function createSession({ candidateName, role, resume }) {
   const id = "s_" + randomUUID().slice(0, 8);
   db.prepare(
-    `INSERT INTO sessions (id, candidate_name, role, created_at, status) VALUES (?, ?, ?, ?, 'live')`
-  ).run(id, candidateName, role || null, Date.now());
+    `INSERT INTO sessions (id, candidate_name, role, created_at, status, resume) VALUES (?, ?, ?, ?, 'live', ?)`
+  ).run(id, candidateName, role || null, Date.now(), resume || null);
   return getSession(id);
+}
+
+export function setGeneratedQuestions(id, questions) {
+  db.prepare(`UPDATE sessions SET generated_questions = ? WHERE id = ?`).run(JSON.stringify(questions || []), id);
 }
 
 export function listSessions() {

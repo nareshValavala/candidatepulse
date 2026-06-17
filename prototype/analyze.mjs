@@ -120,3 +120,44 @@ export async function analyze({ question, answer, signals, history }) {
   if (!textBlock) throw new Error("No text block in model response");
   return JSON.parse(textBlock.text);
 }
+
+// --- Résumé → tailored, grounded first-round questions ---------------------
+const RESUME_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    questions: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: { q: { type: "string" }, basis: { type: "string" } },
+        required: ["q", "basis"],
+      },
+    },
+  },
+  required: ["questions"],
+};
+
+export async function generateResumeQuestions({ resume, role, n = 5 }) {
+  const sys = `You generate interview questions GROUNDED in a specific candidate's resume, for a non-expert recruiter to ask in a first-round screen.
+
+Rules:
+- Each question must probe a CONCRETE claim in the resume — a named project, system, tool, role, metric, or decision — so that only someone who actually did the work could answer it specifically (names, numbers, trade-offs, what broke).
+- Phrase them the natural way a real recruiter would ask out loud. No jargon the recruiter couldn't pronounce.
+- Do NOT ask generic questions that ignore the resume.
+- "basis" = the exact resume claim the question targets (so the recruiter knows why they're asking).`;
+  const user = `ROLE: ${role || "(unspecified)"}\n\nRESUME:\n${resume}\n\nGenerate ${n} grounded questions.`;
+  const req = {
+    model: MODEL,
+    max_tokens: 4000,
+    system: sys,
+    messages: [{ role: "user", content: user }],
+    output_config: { format: { type: "json_schema", schema: RESUME_SCHEMA } },
+  };
+  if (!MODEL.includes("haiku")) req.thinking = { type: "adaptive" };
+  const r = await client.messages.create(req);
+  const t = r.content.find((b) => b.type === "text");
+  if (!t) throw new Error("No text block in résumé-question response");
+  return JSON.parse(t.text).questions;
+}

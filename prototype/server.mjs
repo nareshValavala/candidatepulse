@@ -3,7 +3,8 @@ import "./config.mjs"; // load .env first
 import express from "express";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { analyze, MODEL } from "./analyze.mjs";
+import { analyze, MODEL, generateResumeQuestions } from "./analyze.mjs";
+import { QUESTION_BANK } from "./questionbank.mjs";
 import * as db from "./db.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -19,13 +20,23 @@ app.get("/live", (_req, res) => res.sendFile(join(__dirname, "public", "live.htm
 app.get("/report", (_req, res) => res.sendFile(join(__dirname, "public", "report.html")));
 
 // ---- API ----
-app.post("/api/sessions", (req, res) => {
-  const { candidateName, role } = req.body || {};
+app.post("/api/sessions", async (req, res) => {
+  const { candidateName, role, resume } = req.body || {};
   if (!candidateName?.trim()) return res.status(400).json({ error: "candidateName is required" });
-  res.json(db.createSession({ candidateName: candidateName.trim(), role: (role || "").trim() }));
+  const session = db.createSession({ candidateName: candidateName.trim(), role: (role || "").trim(), resume: (resume || "").trim() });
+  // If a résumé was provided, generate tailored questions — best-effort, never block session creation.
+  if (resume?.trim() && process.env.ANTHROPIC_API_KEY) {
+    try {
+      const questions = await generateResumeQuestions({ resume: resume.trim(), role: (role || "").trim() });
+      db.setGeneratedQuestions(session.id, questions);
+    } catch (e) { console.error("résumé question gen failed:", e?.message); }
+  }
+  res.json(db.getSession(session.id));
 });
 
 app.get("/api/sessions", (_req, res) => res.json(db.listSessions()));
+
+app.get("/api/questions", (_req, res) => res.json(QUESTION_BANK));
 
 app.get("/api/sessions/:id", (req, res) => {
   const s = db.getSession(req.params.id);

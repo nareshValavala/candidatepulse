@@ -72,6 +72,9 @@
   textarea:focus{border-color:var(--amber)}
   .qedit{width:100%; margin-top:10px; font-family:var(--font); font-weight:500; font-size:18px; letter-spacing:-.01em; color:#fff; background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.16); border-radius:9px; padding:10px 13px; outline:none}
   .qedit:focus{border-color:var(--amber)}
+  .qpick{margin-top:10px; width:100%; font-family:var(--font); font-size:13px; color:var(--onDark); background:rgba(0,0,0,.22); border:1px solid rgba(255,255,255,.16); border-radius:9px; padding:9px 11px; outline:none; cursor:pointer}
+  .qpick:focus{border-color:var(--amber)}
+  .qpick option, .qpick optgroup{color:#0A1526; background:#fff}
   /* orb */
   .orbwrap{display:flex; flex-direction:column; align-items:center; gap:16px; padding:6px 0}
   .orb{position:relative; width:190px; height:190px; display:flex; align-items:center; justify-content:center}
@@ -197,7 +200,7 @@ const initials = n => (n||'?').split(/\s+/).map(w=>w[0]).slice(0,2).join('').toU
 
 // session bootstrap — this dashboard runs against a real session (?s=ID)
 const sid = new URLSearchParams(location.search).get('s');
-let SESSION=null, CAND='Candidate', ROLE='';
+let SESSION=null, CAND='Candidate', ROLE='', BANK=[];
 const askedQ = [];                                   // the actual question asked per index (editable)
 const curQ = i => (askedQ[i] != null ? askedQ[i] : QUESTIONS[i].q);
 async function boot(){
@@ -205,6 +208,7 @@ async function boot(){
   let s; try{ s = await (await fetch('/api/sessions/'+encodeURIComponent(sid))).json(); }catch(e){ location.href='/'; return; }
   if(!s || s.error){ location.href='/'; return; }
   SESSION=s; CAND=s.candidateName||'Candidate'; ROLE=s.role||'';
+  try{ BANK = await (await fetch('/api/questions')).json(); }catch(_){}
   document.querySelector('.chip .av').textContent = initials(CAND);
   document.querySelector('.chip .cand').textContent = CAND;
   document.querySelector('.chip .role').textContent = ROLE||'—';
@@ -370,6 +374,17 @@ function statusText(){
   return '';
 }
 
+function questionPicker(){
+  const opt = q => `<option value="${esc(q)}">${esc(q.length>92?q.slice(0,90)+'…':q)}</option>`;
+  let groups = '';
+  const rq = (SESSION && SESSION.generatedQuestions) || [];
+  if (rq.length) groups += `<optgroup label="From résumé">${rq.map(o=>opt(o.q)).join('')}</optgroup>`;
+  groups += (BANK||[]).map(g=>`<optgroup label="${esc(g.category)}">${g.questions.map(opt).join('')}</optgroup>`).join('');
+  if (!groups) return '';
+  return `<select class="qpick" onchange="if(this.value){document.getElementById('qedit').value=this.value;this.selectedIndex=0;}">
+    <option value="">＋ pull a question from the bank…</option>${groups}</select>`;
+}
+
 function renderQ(){
   const r = results[qi];
   const latency = (phase!=='idle' && firstWordAt && askStart) ? ((firstWordAt-askStart)/1000).toFixed(1)+'s to first word' : null;
@@ -389,7 +404,7 @@ function renderQ(){
       </span>
     </div>
     ${phase==='idle'
-      ? `<input id="qedit" class="qedit" value="${esc(curQ(qi))}" />`
+      ? `<input id="qedit" class="qedit" value="${esc(curQ(qi))}" />${questionPicker()}`
       : `<div class="qtext">“${esc(curQ(qi))}”</div>`}
     <div class="controls">${controls}</div>
     ${phase==='idle' && !supported ? `<div class="hint"><b>This browser has no live speech recognition.</b> Use the sample answer, or type one:<textarea id="manual" placeholder="Type the candidate's answer…"></textarea><button class="btn ghost sm" style="margin-top:8px" onclick="finalT=document.getElementById('manual').value; done(false)">Analyze typed answer</button></div>` : ''}

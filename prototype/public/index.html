@@ -78,6 +78,8 @@
       <label><span class="uplabel">Role</span><input id="role" placeholder="e.g. Senior Backend Engineer" /></label>
       <button class="btn amber" id="create">Create &amp; start live →</button>
     </div>
+    <label style="display:block; margin-top:14px"><span class="uplabel" style="display:block; margin-bottom:6px; color:var(--ink2); letter-spacing:.04em">Résumé — optional, generates tailored questions</span>
+      <textarea id="resume" rows="5" placeholder="Paste the candidate's résumé text… we'll generate questions grounded in their actual experience." style="width:100%; padding:11px 13px; font-family:var(--font); font-size:13.5px; line-height:1.5; color:var(--ink); background:#fff; border:1px solid var(--slate1); border-radius:9px; outline:none; resize:vertical"></textarea></label>
     <div id="err"></div>
   </div>
 
@@ -127,12 +129,14 @@ async function load(){
 document.getElementById('create').onclick = async () => {
   const candidateName = document.getElementById('name').value.trim();
   const role = document.getElementById('role').value.trim();
+  const resume = document.getElementById('resume').value.trim();
   const err = document.getElementById('err');
   err.innerHTML='';
   if (!candidateName){ err.innerHTML = `<div class="err">Enter a candidate name.</div>`; return; }
-  const btn = document.getElementById('create'); btn.disabled=true; btn.textContent='Creating…';
+  const btn = document.getElementById('create'); btn.disabled=true;
+  btn.textContent = resume ? 'Creating & generating questions…' : 'Creating…';
   try{
-    const res = await fetch('/api/sessions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({candidateName,role})});
+    const res = await fetch('/api/sessions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({candidateName,role,resume})});
     const s = await res.json();
     if (!res.ok) throw new Error(s.error||'failed');
     location.href = `/live?s=${s.id}`;
