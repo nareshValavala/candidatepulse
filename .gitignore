@@ -17,6 +17,7 @@ data/
 # --- docs / strategy (kept OUT of the repo) ---
 *.md
 **/*.md
+!README.md
 
 # --- build / logs ---
 dist/
